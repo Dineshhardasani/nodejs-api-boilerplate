@@ -8,6 +8,7 @@ import HTTPStatus from 'http-status';
 import UserRoutes from './user.routes';
 import PostRoutes from './post.routes';
 import SeedRoutes from './seed.routes';
+import GetRoutes from './get.routes';
 
 import APIError from '../services/error';
 
@@ -21,6 +22,7 @@ const isTest = process.env.NODE_ENV === 'test';
 
 routes.use('/users', UserRoutes);
 routes.use('/posts', PostRoutes);
+routes.use('/', GetRoutes);
 
 if (isDev || isTest) {
   routes.use('/seeds', SeedRoutes);

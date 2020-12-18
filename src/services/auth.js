@@ -41,6 +41,7 @@ const jwtOpts = {
 
 const jwtLogin = new JWTStrategy(jwtOpts, async (payload, done) => {
   try {
+    console.log('Runing');
     const user = await User.findById(payload._id);
 
     if (!user) {
