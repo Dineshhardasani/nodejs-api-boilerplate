@@ -2,30 +2,50 @@
  * User controller
  */
 
+ const https=require("https");
+
+ function get(url, callback) {
+    "use-strict";
+    https.get(url, function (result) {
+        var dataQueue = "";
+        result.on("data", function (dataBuffer) {
+            dataQueue += dataBuffer;
+        });
+        result.on("end", function () {
+            callback(dataQueue);
+        });
+    });
+}
+
 export async function converter(req, res, next) {
-  let unirest, from, to, value, ans, key;
-  unirest = require('unirest');
+  let from, to, value, ans, key;
   from = req.query.from;
   to = req.query.to;
   value = req.query.value;
   try {
-    let apireq = unirest(
-      'GET',
-      'https://free.currconv.com/api/v7/convert?q=' +
+     var url='https://free.currconv.com/api/v7/convert?q=' +
         from +
         '_' +
         to +
         '&compact=' +
-        process.env.CONVERTER_API_KEY,
-    );
+        process.env.CONVERTER_API_KEY;
 
-    apireq.end(function(apires) {
-      if (apires.error) throw new Error(res.error);
-      for (key in apires.body) {
-        ans = parseFloat(value) * parseFloat(apires.body[key]);
-      }
-      return res.json({ result: ans });
-    });
+
+    const promise = new Promise((resolve, reject) => {
+        get(url, function (data) {
+            // do something with data
+            data=JSON.parse(data);
+            for (key in data) {
+              ans = parseFloat(value) * parseFloat(data[key]);
+            }
+            resolve(ans);
+        })
+    })
+    promise.then(ans => {
+      return res.status(200).json({ result:ans });
+    }).catch(err => {
+    	console.log(err)
+    })
   } catch (e) {
     return next(e);
   }
